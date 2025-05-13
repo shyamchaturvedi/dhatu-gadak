@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>धातु-गणक (DHATU-GADAK)</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fffef6;
+      color: #222;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    header {
+      background-color: #efefef;
+      padding: 15px;
+      border: 2px solid #444;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header h1 {
+      color: #b8860b;
+      font-size: 24px;
+      margin: 0;
+    }
+    header p {
+      font-weight: bold;
+      font-size: 14px;
+      color: #222;
+    }
+    h2 {
+      text-align: center;
+      color: #b8860b;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background-color: #b8860b;
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #a07406;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fdf5e6;
+      border: 2px dashed #b8860b;
+      border-radius: 8px;
+    }
+    .warning {
+      margin-top: 30px;
+      font-size: 14px;
+      color: red;
+      background: #fff0f0;
+      border: 1px solid red;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>भारत सरकार - धातु मूल्य जाँच प्रणाली</h1>
+    <p><strong>सरकारी स्वीकृत कैलकुलेटर: "धातु-गणक (DHATU-GADAK)"</strong></p>
+  </header>
+
+  <h2>सोना / चाँदी मूल्य कैलकुलेटर</h2>
+
+  <label>चुनें: सोना या चाँदी</label>
+  <select id="metalType" onchange="toggleFields()">
+    <option value="">-- विकल्प चुनें --</option>
+    <option value="gold">सोना</option>
+    <option value="silver">चाँदी</option>
+  </select>
+
+  <label>रेट दर्ज करें (₹): <span id="rateLabel">—</span></label>
+  <input type="number" id="rate" placeholder="₹ per 10g (Gold) / 100g (Silver)" />
+
+  <label>वजन</label>
+  <input type="number" id="weight" placeholder="उदाहरण: 1, 0.5, 2" />
+
+  <label>यूनिट चुनें</label>
+  <select id="unit">
+    <option value="gram">ग्राम</option>
+    <option value="tola">तोला</option>
+    <option value="masha">माशा</option>
+    <option value="ratti">रत्ती</option>
+  </select>
+
+  <label>(Optional) मेकिंग चार्ज (₹)</label>
+  <input type="number" id="makingCharge" placeholder="उदाहरण: 500" />
+
+  <button onclick="calculate()">मूल्य कैलकुलेट करें</button>
+
+  <div class="result" id="result" style="display:none;"></div>
+
+  <div class="warning">
+    ❗ <strong>महत्वपूर्ण सूचना:</strong><br/>
+    किसी भी सुनार द्वारा निर्धारित मूल्य से अधिक पैसा लेना या ग्राहक को गुमराह करना एक <strong>कानूनी अपराध</strong> है।<br/>
+    इसकी शिकायत निकटतम <strong>पुलिस स्टेशन</strong> या <strong>उपभोक्ता फोरम</strong> में दर्ज की जा सकती है।<br/>
+    यह कैलकुलेटर "धातु-गणक" भारत सरकार द्वारा स्वीकृत मूल्य की पारदर्शिता हेतु है।
+  </div>
+
+  <script>
+    const unitToGram = {
+      gram: 1,
+      tola: 11.6638038,
+      masha: 0.972,
+      ratti: 0.12125
+    };
+
+    function toggleFields() {
+      const metal = document.getElementById("metalType").value;
+      const rateLabel = document.getElementById("rateLabel");
+      rateLabel.innerText = metal === "gold" ? "सोना (₹/10 ग्राम)" : metal === "silver" ? "चाँदी (₹/100 ग्राम)" : "—";
+    }
+
+    function calculate() {
+      const metal = document.getElementById("metalType").value;
+      const rate = parseFloat(document.getElementById("rate").value);
+      const weight = parseFloat(document.getElementById("weight").value);
+      const unit = document.getElementById("unit").value;
+      const makingCharge = parseFloat(document.getElementById("makingCharge").value) || 0;
+
+      if (!metal || !rate || !weight || !unit) {
+        alert("कृपया सभी आवश्यक जानकारी भरें।");
+        return;
+      }
+
+      const weightInGram = weight * unitToGram[unit];
+      const ratePerGram = metal === "gold" ? rate / 10 : rate / 100;
+      const itemPrice = weightInGram * ratePerGram;
+      const total = itemPrice + makingCharge;
+
+      document.getElementById("result").innerHTML = `
+        <p><strong>धातु:</strong> ${metal === 'gold' ? 'सोना' : 'चाँदी'}</p>
+        <p><strong>वजन (ग्राम में):</strong> ${weightInGram.toFixed(3)} g</p>
+        <p><strong>कीमत (बिना मेकिंग चार्ज):</strong> ₹${itemPrice.toFixed(2)}</p>
+        <p><strong>मेकिंग चार्ज:</strong> ₹${makingCharge.toFixed(2)}</p>
+        <p><strong>💰 कुल कीमत:</strong> ₹${total.toFixed(2)}</p>
+      `;
+      document.getElementById("result").style.display = "block";
+    }
+  </script>
+
+</body>
+</html>
